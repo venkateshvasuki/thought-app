@@ -1,8 +1,13 @@
 use crate::config::ThoughtType;
+use crate::errors::AppError;
 use crate::thought::Thought;
 use rusqlite::{Connection, Result as SqlResult};
 
-pub fn write_to_db(conn: &Connection, thought_type: &ThoughtType, content: &str) -> SqlResult<()> {
+pub fn write_to_db(
+    conn: &Connection,
+    thought_type: &ThoughtType,
+    content: &str,
+) -> SqlResult<(), AppError> {
     conn.execute(
         "INSERT INTO thoughts (type, content) VALUES (?, ?)",
         [thought_type.to_string(), content.to_string()],
@@ -28,7 +33,7 @@ pub fn read_from_db(conn: &Connection) -> SqlResult<Vec<Thought>> {
             .collect()
         })
 }
-pub fn setup_db(db_name: &str) -> SqlResult<Connection> {
+pub fn setup_db(db_name: &str) -> SqlResult<Connection, AppError> {
     let conn = Connection::open(db_name)?;
     conn.execute(
         "CREATE TABLE IF NOT EXISTS thoughts (
