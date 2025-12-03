@@ -1,3 +1,4 @@
+use crate::config::ThoughtType;
 use clap::Error;
 use std::fmt;
 
