@@ -1,5 +1,4 @@
 use crate::config::ThoughtType;
-use rusqlite::types::{FromSql, FromSqlResult, ValueRef};
 
 #[derive(Debug)]
 pub struct Thought {
@@ -21,5 +20,15 @@ impl Thought {
 
     pub fn id(&self) -> &i32 {
         &self.id
+    }
+
+    pub fn thought_type(&self) -> &ThoughtType {
+        &self.thought_type
+    }
+    pub fn content(&self) -> &String {
+        &self.content
+    }
+    pub fn reviewed(&self) -> bool {
+        self.reviewed
     }
 }
