@@ -1,4 +1,5 @@
-use crate::config::ThoughtType;
+use crate::writer_config::ThoughtType;
+use lettre::message::MaybeString;
 
 #[derive(Debug)]
 pub struct Thought {

@@ -1,4 +1,4 @@
-use crate::config::Args;
+use crate::writer_config::Args;
 use crate::errors::AppError;
 use crate::thought::Thought;
 use rusqlite::{Connection, Result as SqlResult};
@@ -20,7 +20,7 @@ fn read_from_db(conn: &Connection) -> Result<Vec<Thought>, AppError> {
     Ok(thoughts)
 }
 
-fn update_db(conn: &Connection, ids: &Vec<Thought>) -> Result<(), AppError> {
+fn update_db(conn: &Connection, ids: &[Thought]) -> Result<(), AppError> {
     ids.iter().try_for_each(|thought| {
         conn.execute(
             "UPDATE thoughts SET reviewed = true WHERE id = ?",
