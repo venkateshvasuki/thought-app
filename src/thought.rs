@@ -37,7 +37,7 @@ impl Thought {
 pub struct ThoughtsEmailBody<'a>(&'a [Thought]);
 
 impl<'a> ThoughtsEmailBody<'a> {
-    pub fn new(email: &'a [Thought]) -> ThoughtsEmailBody {
+    pub fn new(email: &'a [Thought]) -> ThoughtsEmailBody<'a> {
         ThoughtsEmailBody(email)
     }
 }
