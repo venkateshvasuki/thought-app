@@ -1,6 +1,6 @@
-use crate::writer_config::Args;
 use crate::errors::AppError;
 use crate::thought::Thought;
+use crate::writer_config::Args;
 use rusqlite::{Connection, Result as SqlResult};
 
 fn read_from_db(conn: &Connection) -> Result<Vec<Thought>, AppError> {
