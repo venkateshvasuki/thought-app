@@ -58,7 +58,7 @@ impl IntoBody for ThoughtsEmailBody<'_> {
                 .map(|(i, thought)| {
                     format!(
                         r#"<div style="font-size: 14px; margin-bottom: 20px;">
-                <strong>{}. {}</strong>
+                <strong>{}. {}: </strong>
                 <p>{}</p>
                 <hr/>
                 </div>"#,
