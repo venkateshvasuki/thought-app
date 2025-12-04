@@ -29,7 +29,7 @@ pub struct Config {
     receiver_email: String,
     app_password: String,
     relay: String,
-    name: Option<String>,
+    name: String,
 }
 
 impl Config {
@@ -45,7 +45,7 @@ impl Config {
     pub fn relay(&self) -> &String {
         &self.relay
     }
-    pub fn name(&self) -> &Option<String> {
+    pub fn name(&self) -> &String {
         &self.name
     }
 }

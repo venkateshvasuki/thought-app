@@ -1,38 +1,36 @@
 use crate::errors::AppError;
-use crate::errors::AppError::Smtp;
+use crate::errors::AppError::SmtpEmail;
 use crate::reader_config::Config;
-use crate::thought::Thought;
-use lettre::message::{Mailbox, header::ContentType};
+use crate::thought::{Thought, ThoughtsEmailBody};
+use lettre::message::{header::ContentType, Mailbox};
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
-
 pub fn send_email(thought: &[Thought], config: &Config) -> Result<(), AppError> {
     let email = Message::builder()
         .from(Mailbox::new(
-            Some("Thought App".to_owned()),
-            config.sender_email().parse().unwrap(),
+            Some("Thought App".to_string()),
+            config.sender_email().parse()?,
         ))
         .to(Mailbox::new(
-            config.name().to_owned(),
-            config.receiver_email().parse().unwrap(),
+            Some(config.name().to_string()),
+            config.receiver_email().parse()?,
         ))
         .subject("Thought App, Weekly Round up")
         .header(ContentType::TEXT_PLAIN)
-        .body(format!("Body: {:?}", thought))
-        .map_err(|e| Smtp(e.to_string()))?;
+        .body(ThoughtsEmailBody::new(thought))?;
 
     let creds = Credentials::new(
-        config.sender_email().to_owned(),
-        config.app_password().to_owned(),
+        config.sender_email().to_string(),
+        config.app_password().to_string(),
     );
 
     let mailer = SmtpTransport::starttls_relay(config.relay())
-        .map_err(|e| Smtp(e.to_string()))?
+        .map_err(|e| SmtpEmail(e.to_string()))?
         .credentials(creds)
         .build();
 
     mailer
         .send(&email)
         .map(|_| ())
-        .map_err(|e| Smtp(e.to_string()))
+        .map_err(|e| SmtpEmail(e.to_string()))
 }
