@@ -44,22 +44,40 @@ impl<'a> ThoughtsEmailBody<'a> {
 
 impl IntoBody for ThoughtsEmailBody<'_> {
     fn into_body(self, _encoding: Option<ContentTransferEncoding>) -> Body {
-        let mut body_text = String::from("Weekly Thoughts Summary\n");
-        body_text.push_str("=======================\n\n");
-
-        if self.0.is_empty() {
-            body_text.push_str("No thoughts recorded this week.\n");
+        let body_text = if self.0.is_empty() {
+            r#"<html><body style="font-size: 16px;">
+    <h2>Weekly Thoughts Summary</h2>
+    <p>No thoughts recorded this week.</p>
+    </body></html>"#
+                .to_string()
         } else {
-            for (i, thought) in self.0.iter().enumerate() {
-                body_text.push_str(&format!(
-                    "{}. {}\n\n{}\n\n---\n\n",
-                    i + 1,
-                    thought.thought_type,
-                    thought.content
-                ));
-            }
-        }
-        body_text.push_str("End of weekly roundup");
+            let thoughts_section = self
+                .0
+                .iter()
+                .enumerate()
+                .map(|(i, thought)| {
+                    format!(
+                        r#"<div style="font-size: 14px; margin-bottom: 20px;">
+                <strong>{}. {}</strong>
+                <p>{}</p>
+                <hr/>
+                </div>"#,
+                        i + 1,
+                        thought.thought_type,
+                        thought.content
+                    )
+                })
+                .collect::<String>();
+
+            format!(
+                r#"<html><body style="font-size: 16px;">
+        <h2>Weekly Thoughts Summary</h2>
+        {}
+        <p>End of weekly roundup</p>
+        </body></html>"#,
+                thoughts_section
+            )
+        };
 
         Body::new(body_text)
     }

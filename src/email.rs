@@ -16,7 +16,7 @@ pub fn send_email(thought: &[Thought], config: &Config) -> Result<(), AppError> 
             config.receiver_email().parse()?,
         ))
         .subject("Thought App, Weekly Round up")
-        .header(ContentType::TEXT_PLAIN)
+        .header(ContentType::TEXT_HTML)
         .body(ThoughtsEmailBody::new(thought))?;
 
     let creds = Credentials::new(
