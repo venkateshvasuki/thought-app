@@ -15,10 +15,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build rriter
-      run: cargo build --verbose --features writer
-    - name: Build reader
-      run: cargo build --verbose --features reader
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v4
+      - name: fmt check
+        run: cargo fmt --check
+      - name: Build writer
+        run: cargo build --verbose --features writer
+      - name: Build reader
+        run: cargo build --verbose --features reader
+      - name: Run tests
+        run: cargo test --verbose
