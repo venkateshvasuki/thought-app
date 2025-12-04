@@ -34,17 +34,19 @@ impl Thought {
     }
 }
 
-pub struct ThoughtsEmailBody<'a>(&'a [Thought]);
+pub struct ThoughtsEmailBody<'a> {
+    thoughts: &'a [Thought],
+}
 
 impl<'a> ThoughtsEmailBody<'a> {
-    pub fn new(email: &'a [Thought]) -> ThoughtsEmailBody<'a> {
-        ThoughtsEmailBody(email)
+    pub fn new(thoughts: &'a [Thought]) -> ThoughtsEmailBody<'a> {
+        ThoughtsEmailBody { thoughts }
     }
 }
 
 impl IntoBody for ThoughtsEmailBody<'_> {
     fn into_body(self, _encoding: Option<ContentTransferEncoding>) -> Body {
-        let body_text = if self.0.is_empty() {
+        let body_text = if self.thoughts.is_empty() {
             r#"<html><body style="font-size: 16px;">
     <h2>Weekly Thoughts Summary</h2>
     <p>No thoughts recorded this week.</p>
@@ -52,7 +54,7 @@ impl IntoBody for ThoughtsEmailBody<'_> {
                 .to_string()
         } else {
             let thoughts_section = self
-                .0
+                .thoughts
                 .iter()
                 .enumerate()
                 .map(|(i, thought)| {
