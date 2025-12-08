@@ -1,11 +1,11 @@
 use crate::errors::AppError;
 use crate::errors::AppError::SmtpEmail;
-use crate::reader_config::Config;
+use crate::reader_config::{Config, EmailConfig};
 use crate::thought::{Thought, ThoughtsEmailBody};
-use lettre::message::{Mailbox, header::ContentType};
+use lettre::message::{header::ContentType, Mailbox};
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
-pub fn send_email(thought: &[Thought], config: &Config) -> Result<(), AppError> {
+pub fn send_email(thought: &[Thought], config: &EmailConfig) -> Result<(), AppError> {
     let email = Message::builder()
         .from(Mailbox::new(
             Some("Thought App".to_string()),

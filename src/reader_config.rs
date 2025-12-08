@@ -24,7 +24,7 @@ impl Args {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Config {
+pub struct EmailConfig {
     sender_email: String,
     receiver_email: String,
     app_password: String,
@@ -32,7 +32,7 @@ pub struct Config {
     name: String,
 }
 
-impl Config {
+impl EmailConfig {
     pub fn sender_email(&self) -> &String {
         &self.sender_email
     }
@@ -47,5 +47,36 @@ impl Config {
     }
     pub fn name(&self) -> &String {
         &self.name
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AIClientConfig {
+    bearer_token: String,
+    endpoint: String,
+}
+
+impl AIClientConfig {
+    pub fn bearer_token(&self) -> &String {
+        &self.bearer_token
+    }
+
+    pub fn endpoint(&self) -> &String {
+        &self.bearer_token
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    ai_client_config: AIClientConfig,
+    email_config: EmailConfig,
+}
+
+impl Config {
+    pub fn ai_client_config(&self) -> &AIClientConfig {
+        &self.ai_client_config
+    }
+    pub fn email_config(&self) -> &EmailConfig {
+        &self.email_config
     }
 }

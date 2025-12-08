@@ -4,7 +4,6 @@ mod errors;
 mod reader_config;
 mod thought;
 mod writer_config;
-
 use crate::db_operations::{read, setup_db, write_to_db};
 use crate::reader_config::Args as ReaderConfigArgs;
 use crate::writer_config::Args as WriterConfigArgs;
@@ -21,12 +20,14 @@ fn main() -> Result<(), errors::AppError> {
     write_to_db(&conn, &args)
 }
 
-#[cfg(feature = "reader")]
+//#[cfg(feature = "reader")]
 fn main() -> Result<(), errors::AppError> {
+    use rusqlite::config;
+
     let args = ReaderConfigArgs::try_parse()?;
     let config = args.config()?;
     let conn = setup_db(&get_db_path())?;
     let res = read(&conn)?;
-    email::send_email(&res, &config)?;
+    email::send_email(&res, &config.email_config())?;
     Ok(())
 }
