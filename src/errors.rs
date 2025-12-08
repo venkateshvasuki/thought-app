@@ -1,9 +1,9 @@
 use clap::Error as ClapError;
 use lettre::address::AddressError;
 use lettre::error::Error as LettreError;
-use std::fmt;
+use reqwest::Error as ReqwestError;
+use std::fmt::{self, write};
 use std::io::Error;
-
 #[derive(Debug)]
 pub enum AppError {
     Clap(String),
@@ -11,6 +11,7 @@ pub enum AppError {
     SmtpEmail(String),
     Config(String),
     IO(String),
+    Reqwest(String),
 }
 
 impl fmt::Display for AppError {
@@ -21,6 +22,7 @@ impl fmt::Display for AppError {
             AppError::SmtpEmail(e) => write!(f, "Smtp error: {}", e),
             AppError::Config(e) => write!(f, "Config error: {}", e),
             AppError::IO(e) => write!(f, "IO error: {}", e),
+            AppError::Reqwest(e) => write!(f, "Reqwest error: {}", e),
         }
     }
 }
@@ -58,5 +60,11 @@ impl From<LettreError> for AppError {
 impl From<AddressError> for AppError {
     fn from(value: AddressError) -> Self {
         AppError::SmtpEmail(value.to_string())
+    }
+}
+
+impl From<ReqwestError> for AppError {
+    fn from(value: ReqwestError) -> Self {
+        AppError::Reqwest(value.to_string())
     }
 }

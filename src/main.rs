@@ -1,3 +1,4 @@
+mod client;
 mod db_operations;
 mod email;
 mod errors;
