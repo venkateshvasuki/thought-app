@@ -7,7 +7,7 @@ mod thought;
 mod writer_config;
 use crate::db_operations::{read, setup_db, write_to_db};
 use crate::reader_config::Args as ReaderConfigArgs;
-use crate::writer_config::Args as WriterConfigArgs;
+use crate::writer_config::{Args as WriterConfigArgs, ThoughtType};
 use clap::Parser;
 use std::env;
 
@@ -21,14 +21,20 @@ fn main() -> Result<(), errors::AppError> {
     write_to_db(&conn, &args)
 }
 
-#[cfg(feature = "reader")]
+//#[cfg(feature = "reader")]
 fn main() -> Result<(), errors::AppError> {
-    use rusqlite::config;
-
     let args = ReaderConfigArgs::try_parse()?;
     let config = args.config()?;
     let conn = setup_db(&get_db_path())?;
-    let res = read(&conn)?;
-    email::send_email(&res, &config.email_config())?;
+    let thoughts = read(&conn)?;
+    let content: Vec<&String> = thoughts
+        .iter()
+        .filter(|s| matches!(s.thought_type(), ThoughtType::Project))
+        .map(|s| s.content())
+        .collect();
+
+    let results = client::get_response(&config.ai_client_config(), &content)?;
+    println!("Results {results}");
+    email::send_email(&thoughts, &config.email_config())?;
     Ok(())
 }

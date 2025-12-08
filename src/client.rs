@@ -23,7 +23,7 @@ fn send_request(client: &Client, request: Request) -> Result<String, AppError> {
     Ok(response.text()?)
 }
 
-pub fn get_response(config: &AIClientConfig, content: &[String]) -> Result<String, AppError> {
+pub fn get_response(config: &AIClientConfig, content: &[&String]) -> Result<String, AppError> {
     let prompt = format!(
         r#"I have a list of ideas - they could be startup ideas, product concepts, hobby projects, or experimental tools. For EACH idea below, provide relevant analysis and context.
 
