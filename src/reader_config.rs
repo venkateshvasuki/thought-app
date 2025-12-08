@@ -49,7 +49,7 @@ impl EmailConfig {
         &self.name
     }
 }
-trait AIClientDetails {
+pub trait AIClientDetails {
     fn endpoint(&self) -> &str;
 }
 
@@ -69,21 +69,28 @@ impl AIClientDetails for AIClient {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AIClientConfig {
     bearer_token: String,
     ai_client: AIClient,
 }
 
-impl AIClientConfig {
-    pub fn bearer_token(&self) -> String {
-        match self.ai_client {
-            AIClient::Claude => self.bearer_token.clone(),
-            _ => format!("Bearer {}", self.bearer_token),
+impl Clone for AIClient {
+    fn clone(&self) -> Self {
+        match self {
+            AIClient::Claude => AIClient::Claude,
+            AIClient::OpenAI => AIClient::OpenAI,
+            AIClient::Gemini => AIClient::Gemini,
         }
     }
-    pub fn endpoint(&self) -> &str {
-        &self.ai_client.endpoint()
+}
+
+impl AIClientConfig {
+    pub fn bearer_token(&self) -> &String {
+        &self.bearer_token
+    }
+    pub fn ai_client(&self) -> &AIClient {
+        &self.ai_client
     }
 }
 
@@ -94,9 +101,18 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn ai_client_config(&self) -> &AIClientConfig {
-        &self.ai_client_config
+    pub fn ai_client_config(&self) -> AIClientConfig {
+        let bearer_token = match self.ai_client_config.ai_client {
+            AIClient::Claude => self.ai_client_config.bearer_token.clone(),
+            _ => format!("Bearer {}", self.ai_client_config.bearer_token.clone()),
+        };
+
+        AIClientConfig {
+            ai_client: self.ai_client_config.ai_client.clone(),
+            bearer_token,
+        }
     }
+
     pub fn email_config(&self) -> &EmailConfig {
         &self.email_config
     }

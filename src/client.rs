@@ -1,4 +1,7 @@
-use crate::{errors::AppError, reader_config::AIClientConfig};
+use crate::{
+    errors::AppError,
+    reader_config::{AIClientConfig, AIClientDetails},
+};
 use lettre::transport::smtp::response;
 use reqwest::blocking::{Client, Request};
 
@@ -8,7 +11,7 @@ fn get_request(
     prompt: &String,
 ) -> Result<Request, AppError> {
     let request = client
-        .post(config.endpoint())
+        .post(config.ai_client().endpoint())
         .header("x-goog-api-key", config.bearer_token())
         .json(&prompt)
         .build()?;
