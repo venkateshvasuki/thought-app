@@ -21,7 +21,7 @@ fn main() -> Result<(), errors::AppError> {
     write_to_db(&conn, &args)
 }
 
-//#[cfg(feature = "reader")]
+#[cfg(feature = "reader")]
 fn main() -> Result<(), errors::AppError> {
     let args = ReaderConfigArgs::try_parse()?;
     let config = args.config()?;
