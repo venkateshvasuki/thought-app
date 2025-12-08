@@ -49,20 +49,41 @@ impl EmailConfig {
         &self.name
     }
 }
+trait AIClientDetails {
+    fn endpoint(&self) -> &str;
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum AIClient {
+    OpenAI,
+    Claude,
+    Gemini,
+}
+impl AIClientDetails for AIClient {
+    fn endpoint(&self) -> &str {
+        match self {
+            AIClient::OpenAI => "https://api.openai.com/v1/chat/completions",
+            AIClient::Gemini => "https://generativelanguage.googleapis.com/v1/models",
+            AIClient::Claude => "https://api.anthropic.com/v1/messages",
+        }
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AIClientConfig {
     bearer_token: String,
-    endpoint: String,
+    ai_client: AIClient,
 }
 
 impl AIClientConfig {
-    pub fn bearer_token(&self) -> &String {
-        &self.bearer_token
+    pub fn bearer_token(&self) -> String {
+        match self.ai_client {
+            AIClient::Claude => self.bearer_token.clone(),
+            _ => format!("Bearer {}", self.bearer_token),
+        }
     }
-
-    pub fn endpoint(&self) -> &String {
-        &self.bearer_token
+    pub fn endpoint(&self) -> &str {
+        &self.ai_client.endpoint()
     }
 }
 
