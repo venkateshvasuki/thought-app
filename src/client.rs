@@ -59,8 +59,39 @@ For each idea:
 - Include any other insights particularly important for that idea"#,
         content
     );
+    let escaped_prompt = prompt
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
+        .replace('\r', "\\r")
+        .replace('\t', "\\t");
+
+    // Construct request body as a string
+    let request_body = format!(
+        r#"{{"contents":[{{"parts":[{{"text":"{}"}}]}}]}}"#,
+        escaped_prompt
+    );
     let client = Client::new();
-    let request = get_request(&client, config, &prompt)?;
-    let response = send_request(&client, request)?;
-    Ok(response)
+
+    let response = client
+        .post(config.ai_client().endpoint())
+        .header("x-goog-api-key", config.bearer_token())
+        .header("Content-Type", "application/json")
+        .body(request_body)
+        .send()?;
+
+    // Debug: print status and raw response
+    let status = response.status();
+    let response_text = response.text()?;
+
+    println!("Status: {}", status);
+    println!("Raw response: {}", response_text);
+
+    Ok(response_text)
+    /*
+        let client = Client::new();
+        let request = get_request(&client, config, &request_body)?;
+        let response = send_request(&client, request)?;
+        Ok(response)
+    */
 }

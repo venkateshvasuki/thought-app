@@ -34,7 +34,7 @@ fn main() -> Result<(), errors::AppError> {
         .collect();
 
     let results = client::get_response(&config.ai_client_config(), &content)?;
-    println!("Results {results}");
+    println!("Cotent {:?}, Result: {}", content, results);
     email::send_email(&thoughts, &config.email_config())?;
     Ok(())
 }
