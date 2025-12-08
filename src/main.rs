@@ -20,7 +20,7 @@ fn main() -> Result<(), errors::AppError> {
     write_to_db(&conn, &args)
 }
 
-//#[cfg(feature = "reader")]
+#[cfg(feature = "reader")]
 fn main() -> Result<(), errors::AppError> {
     use rusqlite::config;
 
