@@ -7,4 +7,5 @@ reorder_imports = true
 reorder_modules = true
 remove_nested_parens = true
 edition = "2024"
-
+print_misformatted_file_name = true
+style_edition = "2024"
