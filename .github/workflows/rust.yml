@@ -21,6 +21,8 @@ jobs:
       - name: Build writer
         run: cargo build --verbose --features writer
       - name: Build reader
-        run: cargo build --verbose --features reader
-      - name: Run tests
-        run: cargo test --verbose
+        run: cargo build --verbose --features reader                                                                                                              
+      - name: Run writer tests                                                                                        
+        run: cargo test --verbose --features writer                                                                   
+      - name: Run reader tests                                                                                        
+        run: cargo test --verbose --features reader
