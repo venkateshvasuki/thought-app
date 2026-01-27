@@ -384,6 +384,164 @@ Fast execution is achieved through:
 6. **Feature-gate integration tests** - respect feature boundaries
 7. **Clean test data** - use temporary files, in-memory DBs for automatic cleanup
 
+## Git Workflow
+
+### Branching Strategy
+
+**IMPORTANT: Always create a new branch for changes. Never commit directly to `master` or `main`.**
+
+#### Creating a Feature Branch
+
+```bash
+# Create and checkout a new branch
+git checkout -b feature/your-feature-name
+
+# Or for bug fixes
+git checkout -b fix/bug-description
+```
+
+#### Branch Naming Conventions
+
+- **Features**: `feature/description` (e.g., `feature/add-authentication`)
+- **Bug fixes**: `fix/description` (e.g., `fix/email-sending-error`)
+- **Tests**: `test/description` (e.g., `test/add-unit-tests`)
+- **Documentation**: `docs/description` (e.g., `docs/update-readme`)
+- **Refactoring**: `refactor/description` (e.g., `refactor/extract-config-parser`)
+
+#### Committing Changes
+
+```bash
+# Stage specific files
+git add src/file1.rs src/file2.rs
+
+# Or stage all changes (be careful!)
+git add .
+
+# Commit with descriptive message
+git commit -m "Add feature: description of changes
+
+- Bullet point 1
+- Bullet point 2
+- Bullet point 3
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+```
+
+#### Pushing to GitHub
+
+```bash
+# First time pushing the branch
+git push -u origin feature/your-feature-name
+
+# Subsequent pushes
+git push
+```
+
+#### Creating Pull Requests
+
+After pushing your branch, GitHub will provide a URL to create a pull request:
+
+```
+https://github.com/venkateshvasuki/thought-app/pull/new/feature/your-feature-name
+```
+
+**Pull Request Checklist:**
+1. ✅ All tests pass (`cargo test --features writer && cargo test --features reader`)
+2. ✅ Code follows project conventions
+3. ✅ Descriptive PR title and description
+4. ✅ Related issues linked (if applicable)
+5. ✅ Documentation updated (if needed)
+
+#### Merging Strategy
+
+- Use **"Squash and merge"** for feature branches to keep history clean
+- Use **"Merge commit"** for important milestones
+- Delete branch after merging
+
+#### Example Workflow
+
+```bash
+# 1. Start from master
+git checkout master
+git pull origin master
+
+# 2. Create feature branch
+git checkout -b feature/add-user-settings
+
+# 3. Make changes and test
+cargo test --features writer
+cargo test --features reader
+
+# 4. Commit changes
+git add src/settings.rs tests/settings_test.rs
+git commit -m "Add user settings configuration
+
+- Add Settings struct
+- Implement TOML parsing
+- Add unit tests
+- Update documentation
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+
+# 5. Push to GitHub
+git push -u origin feature/add-user-settings
+
+# 6. Create PR on GitHub and request review
+
+# 7. After approval, merge PR and delete remote branch
+
+# 8. Clean up local branch
+git checkout master
+git pull origin master
+git branch -d feature/add-user-settings
+```
+
+#### Syncing with Master
+
+If master has changed while working on your branch:
+
+```bash
+# Option 1: Rebase (cleaner history)
+git checkout feature/your-branch
+git fetch origin
+git rebase origin/master
+
+# Option 2: Merge (preserves history)
+git checkout feature/your-branch
+git merge origin/master
+```
+
+### Pre-commit Checklist
+
+Before committing:
+- [ ] Run tests: `cargo test --features writer && cargo test --features reader`
+- [ ] Check formatting: `cargo fmt --check`
+- [ ] Run clippy: `cargo clippy --features writer && cargo clippy --features reader`
+- [ ] Update documentation if needed
+- [ ] Review changes: `git diff`
+
+### Commit Message Guidelines
+
+**Format:**
+```
+<type>: <short summary> (50 chars or less)
+
+<detailed description with bullet points>
+- What changed
+- Why it changed
+- Any breaking changes
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `test`: Adding or updating tests
+- `refactor`: Code refactoring
+- `docs`: Documentation changes
+- `chore`: Maintenance tasks
+
 ## References
 
 - [Rust Book - Writing Tests](https://doc.rust-lang.org/book/ch11-00-testing.html)
