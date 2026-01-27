@@ -5,7 +5,7 @@ use crate::{
 use lettre::transport::smtp::response;
 use reqwest::blocking::{Client, Request};
 
-fn get_request(
+pub fn get_request(
     client: &Client,
     config: &AIClientConfig,
     prompt: &String,
@@ -18,7 +18,7 @@ fn get_request(
     Ok(request)
 }
 
-fn send_request(client: &Client, request: Request) -> Result<String, AppError> {
+pub fn send_request(client: &Client, request: Request) -> Result<String, AppError> {
     let response = client.execute(request)?;
     Ok(response.text()?)
 }
@@ -94,4 +94,88 @@ For each idea:
         let response = send_request(&client, request)?;
         Ok(response)
     */
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn create_test_config(_endpoint: &str, token: &str) -> AIClientConfig {
+        serde_json::from_str(&format!(
+            r#"{{
+                "bearer_token": "{}",
+                "ai_client": "Gemini"
+            }}"#,
+            token
+        ))
+        .unwrap()
+    }
+
+    #[test]
+    fn test_get_request_builds_correct_headers() {
+        let config = create_test_config("http://test.com", "test_token");
+        let client = Client::new();
+        let prompt = "Test prompt".to_string();
+
+        let request = get_request(&client, &config, &prompt).unwrap();
+
+        assert_eq!(request.method(), "POST");
+        assert!(request
+            .headers()
+            .get("x-goog-api-key")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .contains("test_token"));
+    }
+
+    #[test]
+    fn test_get_request_builds_to_correct_endpoint() {
+        let config = create_test_config("http://test.com", "api_key");
+        let client = Client::new();
+        let prompt = "Test prompt".to_string();
+
+        let request = get_request(&client, &config, &prompt).unwrap();
+
+        // Verify it posts to the AI client endpoint
+        assert!(request.url().to_string().contains("generativelanguage.googleapis.com"));
+    }
+
+    #[test]
+    fn test_get_request_includes_json_body() {
+        let config = create_test_config("http://test.com", "api_key");
+        let client = Client::new();
+        let prompt = r#"{"test": "data"}"#.to_string();
+
+        let request = get_request(&client, &config, &prompt).unwrap();
+
+        assert!(request.body().is_some());
+    }
+
+    #[test]
+    fn test_config_bearer_token_passed_to_header() {
+        let expected_token = "my_secret_token_123";
+        let config = create_test_config("http://test.com", expected_token);
+        let client = Client::new();
+        let prompt = "Test".to_string();
+
+        let request = get_request(&client, &config, &prompt).unwrap();
+
+        let header_value = request
+            .headers()
+            .get("x-goog-api-key")
+            .unwrap()
+            .to_str()
+            .unwrap();
+
+        assert_eq!(header_value, expected_token);
+    }
+
+    #[test]
+    fn test_ai_client_config_structure() {
+        let config = create_test_config("http://example.com", "token123");
+
+        assert_eq!(config.bearer_token(), "token123");
+        assert!(matches!(config.ai_client(), crate::reader_config::AIClient::Gemini));
+    }
 }

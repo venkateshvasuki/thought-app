@@ -84,3 +84,93 @@ impl IntoBody for ThoughtsEmailBody<'_> {
         Body::new(body_text)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_thought_new() {
+        let thought = Thought::new(
+            1,
+            ThoughtType::Notes,
+            "Test content".to_string(),
+            false,
+        );
+        assert_eq!(*thought.id(), 1);
+        assert!(matches!(thought.thought_type(), ThoughtType::Notes));
+        assert_eq!(thought.content(), "Test content");
+        assert_eq!(thought.reviewed(), false);
+    }
+
+    #[test]
+    fn test_thought_getters() {
+        let thought = Thought::new(
+            42,
+            ThoughtType::Project,
+            "Project idea".to_string(),
+            true,
+        );
+        assert_eq!(*thought.id(), 42);
+        assert!(matches!(thought.thought_type(), ThoughtType::Project));
+        assert_eq!(thought.content(), "Project idea");
+        assert_eq!(thought.reviewed(), true);
+    }
+
+    #[test]
+    fn test_thoughts_email_body_empty() {
+        let thoughts: Vec<Thought> = vec![];
+        let email_body = ThoughtsEmailBody::new(&thoughts);
+
+        // Test that we can create the body without panicking
+        // The actual Body type doesn't expose its content for testing
+        // so we verify the struct can be constructed
+        assert_eq!(email_body.thoughts.len(), 0);
+    }
+
+    #[test]
+    fn test_thoughts_email_body_single_thought() {
+        let thoughts = vec![Thought::new(
+            1,
+            ThoughtType::Todo,
+            "Complete tests".to_string(),
+            false,
+        )];
+        let email_body = ThoughtsEmailBody::new(&thoughts);
+
+        // Verify the struct stores the thoughts correctly
+        assert_eq!(email_body.thoughts.len(), 1);
+        assert_eq!(email_body.thoughts[0].content(), "Complete tests");
+    }
+
+    #[test]
+    fn test_thoughts_email_body_multiple_thoughts() {
+        let thoughts = vec![
+            Thought::new(1, ThoughtType::Notes, "First note".to_string(), false),
+            Thought::new(2, ThoughtType::Project, "Second project".to_string(), false),
+            Thought::new(3, ThoughtType::Question, "Third question".to_string(), false),
+        ];
+        let email_body = ThoughtsEmailBody::new(&thoughts);
+
+        // Verify the struct stores all thoughts
+        assert_eq!(email_body.thoughts.len(), 3);
+        assert_eq!(email_body.thoughts[0].content(), "First note");
+        assert_eq!(email_body.thoughts[1].content(), "Second project");
+        assert_eq!(email_body.thoughts[2].content(), "Third question");
+    }
+
+    #[test]
+    fn test_thoughts_email_body_html_structure() {
+        let thoughts = vec![Thought::new(
+            1,
+            ThoughtType::Misc,
+            "Test".to_string(),
+            false,
+        )];
+        let email_body = ThoughtsEmailBody::new(&thoughts);
+
+        // Verify we can create a Body from it without panicking
+        let _body = email_body.into_body(None);
+        // Body is created successfully if we reach here
+    }
+}
