@@ -91,12 +91,7 @@ mod tests {
 
     #[test]
     fn test_thought_new() {
-        let thought = Thought::new(
-            1,
-            ThoughtType::Notes,
-            "Test content".to_string(),
-            false,
-        );
+        let thought = Thought::new(1, ThoughtType::Notes, "Test content".to_string(), false);
         assert_eq!(*thought.id(), 1);
         assert!(matches!(thought.thought_type(), ThoughtType::Notes));
         assert_eq!(thought.content(), "Test content");
@@ -105,12 +100,7 @@ mod tests {
 
     #[test]
     fn test_thought_getters() {
-        let thought = Thought::new(
-            42,
-            ThoughtType::Project,
-            "Project idea".to_string(),
-            true,
-        );
+        let thought = Thought::new(42, ThoughtType::Project, "Project idea".to_string(), true);
         assert_eq!(*thought.id(), 42);
         assert!(matches!(thought.thought_type(), ThoughtType::Project));
         assert_eq!(thought.content(), "Project idea");
@@ -148,7 +138,12 @@ mod tests {
         let thoughts = vec![
             Thought::new(1, ThoughtType::Notes, "First note".to_string(), false),
             Thought::new(2, ThoughtType::Project, "Second project".to_string(), false),
-            Thought::new(3, ThoughtType::Question, "Third question".to_string(), false),
+            Thought::new(
+                3,
+                ThoughtType::Question,
+                "Third question".to_string(),
+                false,
+            ),
         ];
         let email_body = ThoughtsEmailBody::new(&thoughts);
 

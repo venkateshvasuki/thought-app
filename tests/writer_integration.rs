@@ -9,10 +9,7 @@ mod writer_tests {
         let conn = setup_db(":memory:").unwrap();
 
         // Create args and write a thought
-        let args = Args::new_for_test(
-            ThoughtType::Notes,
-            "Integration test thought".to_string(),
-        );
+        let args = Args::new_for_test(ThoughtType::Notes, "Integration test thought".to_string());
 
         write_to_db(&conn, &args).unwrap();
 
@@ -25,11 +22,9 @@ mod writer_tests {
 
         // Verify the content
         let content: String = conn
-            .query_row(
-                "SELECT content FROM thoughts WHERE id = 1",
-                [],
-                |row| row.get(0),
-            )
+            .query_row("SELECT content FROM thoughts WHERE id = 1", [], |row| {
+                row.get(0)
+            })
             .unwrap();
 
         assert_eq!(content, "Integration test thought");

@@ -120,13 +120,15 @@ mod tests {
         let request = get_request(&client, &config, &prompt).unwrap();
 
         assert_eq!(request.method(), "POST");
-        assert!(request
-            .headers()
-            .get("x-goog-api-key")
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .contains("test_token"));
+        assert!(
+            request
+                .headers()
+                .get("x-goog-api-key")
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .contains("test_token")
+        );
     }
 
     #[test]
@@ -138,7 +140,12 @@ mod tests {
         let request = get_request(&client, &config, &prompt).unwrap();
 
         // Verify it posts to the AI client endpoint
-        assert!(request.url().to_string().contains("generativelanguage.googleapis.com"));
+        assert!(
+            request
+                .url()
+                .to_string()
+                .contains("generativelanguage.googleapis.com")
+        );
     }
 
     #[test]
@@ -176,6 +183,9 @@ mod tests {
         let config = create_test_config("http://example.com", "token123");
 
         assert_eq!(config.bearer_token(), "token123");
-        assert!(matches!(config.ai_client(), crate::reader_config::AIClient::Gemini));
+        assert!(matches!(
+            config.ai_client(),
+            crate::reader_config::AIClient::Gemini
+        ));
     }
 }

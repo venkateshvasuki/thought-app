@@ -126,8 +126,7 @@ mod reader_tests {
             .collect();
         read_types.sort();
 
-        let mut expected_types: Vec<String> =
-            types.iter().map(|s| s.to_string()).collect();
+        let mut expected_types: Vec<String> = types.iter().map(|s| s.to_string()).collect();
         expected_types.sort();
 
         assert_eq!(read_types, expected_types);

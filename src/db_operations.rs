@@ -101,11 +101,13 @@ mod tests {
         conn.execute(
             "INSERT INTO thoughts (type, content, reviewed) VALUES (?, ?, ?)",
             ["Notes", "Unreviewed thought", "0"],
-        ).unwrap();
+        )
+        .unwrap();
         conn.execute(
             "INSERT INTO thoughts (type, content, reviewed) VALUES (?, ?, ?)",
             ["Todo", "Reviewed thought", "1"],
-        ).unwrap();
+        )
+        .unwrap();
 
         let thoughts = read_from_db(&conn).unwrap();
 
@@ -134,7 +136,8 @@ mod tests {
         conn.execute(
             "INSERT INTO thoughts (type, content, reviewed) VALUES (?, ?, ?)",
             ["Notes", "Test thought", "0"],
-        ).unwrap();
+        )
+        .unwrap();
 
         let thoughts = read(&conn).unwrap();
         assert_eq!(thoughts.len(), 1);
@@ -152,11 +155,13 @@ mod tests {
         conn.execute(
             "INSERT INTO thoughts (type, content, reviewed) VALUES (?, ?, ?)",
             ["Notes", "First", "0"],
-        ).unwrap();
+        )
+        .unwrap();
         conn.execute(
             "INSERT INTO thoughts (type, content, reviewed) VALUES (?, ?, ?)",
             ["Todo", "Second", "0"],
-        ).unwrap();
+        )
+        .unwrap();
 
         // Note: read_from_db already marks thoughts as reviewed
         // So to test update_db separately, we need to use a different approach

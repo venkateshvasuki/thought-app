@@ -76,13 +76,16 @@ mod tests {
     }
 
     fn create_test_email_config() -> EmailConfig {
-        serde_json::from_str(r#"{
+        serde_json::from_str(
+            r#"{
             "sender_email": "test@example.com",
             "receiver_email": "receiver@example.com",
             "app_password": "password",
             "relay": "smtp.example.com",
             "name": "Test User"
-        }"#).unwrap()
+        }"#,
+        )
+        .unwrap()
     }
 
     #[test]
