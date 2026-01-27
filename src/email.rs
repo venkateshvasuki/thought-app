@@ -164,7 +164,6 @@ mod tests {
 
     #[test]
     fn test_send_email_invalid_email_address() {
-        let mut config = create_test_email_config();
         // Create invalid config using JSON manipulation
         let invalid_config_json = r#"{
             "sender_email": "invalid-email",
