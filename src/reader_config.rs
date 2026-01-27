@@ -12,10 +12,14 @@ pub struct Args {
     verbose: bool,
 }
 impl Args {
+    pub fn parse_config(contents: &str) -> Result<Config, AppError> {
+        let config: Config = toml::from_str(contents)?;
+        Ok(config)
+    }
+
     fn load_config(path: &PathBuf) -> Result<Config, AppError> {
         let contents = fs::read_to_string(path)?;
-        let config: Config = toml::from_str(&contents)?;
-        Ok(config)
+        Self::parse_config(&contents)
     }
 
     pub fn config(&self) -> Result<Config, AppError> {
@@ -117,5 +121,170 @@ impl Config {
 
     pub fn email_config(&self) -> &EmailConfig {
         &self.email_config
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_parse_config_valid_toml() {
+        let toml_content = r#"
+            [ai_client_config]
+            bearer_token = "test_token"
+            ai_client = "OpenAI"
+
+            [email_config]
+            sender_email = "sender@example.com"
+            receiver_email = "receiver@example.com"
+            app_password = "password123"
+            relay = "smtp.example.com"
+            name = "Test User"
+        "#;
+
+        let config = Args::parse_config(toml_content).unwrap();
+        assert_eq!(config.ai_client_config.bearer_token(), "test_token");
+        assert_eq!(config.email_config().sender_email(), "sender@example.com");
+    }
+
+    #[test]
+    fn test_parse_config_invalid_toml() {
+        let invalid_toml = "invalid toml content [[[";
+        let result = Args::parse_config(invalid_toml);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_config_missing_fields() {
+        let incomplete_toml = r#"
+            [ai_client_config]
+            bearer_token = "test_token"
+        "#;
+        let result = Args::parse_config(incomplete_toml);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_load_config_from_file() {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        let toml_content = r#"
+            [ai_client_config]
+            bearer_token = "file_token"
+            ai_client = "Claude"
+
+            [email_config]
+            sender_email = "test@example.com"
+            receiver_email = "dest@example.com"
+            app_password = "pass"
+            relay = "smtp.test.com"
+            name = "Tester"
+        "#;
+        temp_file.write_all(toml_content.as_bytes()).unwrap();
+
+        let args = Args {
+            config: temp_file.path().to_path_buf(),
+            verbose: true,
+        };
+
+        let config = args.config().unwrap();
+        assert_eq!(config.ai_client_config.bearer_token(), "file_token");
+    }
+
+    #[test]
+    fn test_load_config_file_not_found() {
+        let args = Args {
+            config: PathBuf::from("/nonexistent/path/config.toml"),
+            verbose: true,
+        };
+
+        let result = args.config();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_bearer_token_formatting_claude() {
+        let toml_content = r#"
+            [ai_client_config]
+            bearer_token = "claude_key"
+            ai_client = "Claude"
+
+            [email_config]
+            sender_email = "test@test.com"
+            receiver_email = "test@test.com"
+            app_password = "pass"
+            relay = "smtp.test.com"
+            name = "Test"
+        "#;
+
+        let config = Args::parse_config(toml_content).unwrap();
+        let ai_config = config.ai_client_config();
+        assert_eq!(ai_config.bearer_token(), "claude_key");
+    }
+
+    #[test]
+    fn test_bearer_token_formatting_openai() {
+        let toml_content = r#"
+            [ai_client_config]
+            bearer_token = "openai_key"
+            ai_client = "OpenAI"
+
+            [email_config]
+            sender_email = "test@test.com"
+            receiver_email = "test@test.com"
+            app_password = "pass"
+            relay = "smtp.test.com"
+            name = "Test"
+        "#;
+
+        let config = Args::parse_config(toml_content).unwrap();
+        let ai_config = config.ai_client_config();
+        assert_eq!(ai_config.bearer_token(), "Bearer openai_key");
+    }
+
+    #[test]
+    fn test_bearer_token_formatting_gemini() {
+        let toml_content = r#"
+            [ai_client_config]
+            bearer_token = "gemini_key"
+            ai_client = "Gemini"
+
+            [email_config]
+            sender_email = "test@test.com"
+            receiver_email = "test@test.com"
+            app_password = "pass"
+            relay = "smtp.test.com"
+            name = "Test"
+        "#;
+
+        let config = Args::parse_config(toml_content).unwrap();
+        let ai_config = config.ai_client_config();
+        assert_eq!(ai_config.bearer_token(), "Bearer gemini_key");
+    }
+
+    #[test]
+    fn test_email_config_getters() {
+        let toml_content = r#"
+            [ai_client_config]
+            bearer_token = "token"
+            ai_client = "OpenAI"
+
+            [email_config]
+            sender_email = "sender@test.com"
+            receiver_email = "receiver@test.com"
+            app_password = "secret123"
+            relay = "smtp.gmail.com"
+            name = "John Doe"
+        "#;
+
+        let config = Args::parse_config(toml_content).unwrap();
+        let email = config.email_config();
+        assert_eq!(email.sender_email(), "sender@test.com");
+        assert_eq!(email.receiver_email(), "receiver@test.com");
+        assert_eq!(email.app_password(), "secret123");
+        assert_eq!(email.relay(), "smtp.gmail.com");
+        assert_eq!(email.name(), "John Doe");
     }
 }
